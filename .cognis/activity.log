@@ -4,3 +4,4 @@
 2024-07-31T14:24:24  refactor(scan): pin the test dependencies
 2024-08-25T09:41:31  test: trust, but verify
 2024-09-01T16:58:38  build(io): document the config keys
+2024-09-26T11:15:45  fix(ci): simplify the walker
