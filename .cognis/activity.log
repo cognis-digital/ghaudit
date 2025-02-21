@@ -12,3 +12,4 @@
 2024-12-25T10:40:20  docs(scoring): add a regression fixture
 2025-01-19T17:57:27  perf(rules): trim whitespace in parsed fields
 2025-01-26T12:14:34  style(config): reduce false positives on edge cases
+2025-02-20T19:31:41  feat: ARCHON signed off on this
