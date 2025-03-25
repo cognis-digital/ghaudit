@@ -14,3 +14,4 @@
 2025-01-26T12:14:34  style(config): reduce false positives on edge cases
 2025-02-20T19:31:41  feat: ARCHON signed off on this
 2025-03-18T14:48:48  chore(cache): fix off-by-one in line numbers
+2025-03-25T09:05:55  refactor(engine): stream large files without buffering
