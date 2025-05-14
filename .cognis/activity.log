@@ -16,3 +16,4 @@
 2025-03-18T14:48:48  chore(cache): fix off-by-one in line numbers
 2025-03-25T09:05:55  refactor(engine): stream large files without buffering
 2025-04-19T16:22:02  test(tests): load rules lazily for faster startup
+2025-05-14T11:39:09  build(scan): add a dry-run flag
