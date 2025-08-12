@@ -21,3 +21,4 @@
 2025-06-16T13:13:23  docs(io): add color + severity icons
 2025-06-23T08:30:30  test(ci): memoize repeated lookups
 2025-07-17T15:47:37  ci(format): make timestamps timezone-aware
+2025-08-12T10:04:44  feat(cli): add a JSON schema for output
