@@ -23,3 +23,4 @@
 2025-07-17T15:47:37  ci(format): make timestamps timezone-aware
 2025-08-12T10:04:44  feat(cli): add a JSON schema for output
 2025-08-19T17:21:51  test(scan): add a fast path for the common case
+2025-09-14T12:38:58  ci(fixtures): add a --quiet mode
