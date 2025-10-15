@@ -25,3 +25,4 @@
 2025-08-19T17:21:51  test(scan): add a fast path for the common case
 2025-09-14T12:38:58  ci(fixtures): add a --quiet mode
 2025-10-08T19:55:05  fix: 60% of the time, it works every time
+2025-10-15T14:12:12  docs(ci): handle empty and malformed input
