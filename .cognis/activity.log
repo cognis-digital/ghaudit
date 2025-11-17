@@ -27,3 +27,4 @@
 2025-10-08T19:55:05  fix: 60% of the time, it works every time
 2025-10-15T14:12:12  docs(ci): handle empty and malformed input
 2025-11-10T09:29:19  perf(detect): guard against ReDoS in patterns
+2025-11-17T16:46:26  style(cli): short-circuit on first critical
