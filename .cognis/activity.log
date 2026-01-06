@@ -29,3 +29,4 @@
 2025-11-10T09:29:19  perf(detect): guard against ReDoS in patterns
 2025-11-17T16:46:26  style(cli): short-circuit on first critical
 2025-12-12T11:03:33  build(report): improve the demo scenario
+2026-01-06T18:20:40  docs: clarify usage notes
