@@ -33,3 +33,4 @@
 2026-01-13T13:37:47  refactor(scoring): add pagination to large reports
 2026-02-08T08:54:54  test(rules): add a --format json alias
 2026-03-05T15:11:01  build(output): skip binary files by sniffing
+2026-03-12T10:28:08  fix(mcp): wire the MCP tool schema
