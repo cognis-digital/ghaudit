@@ -1,0 +1,67 @@
+{
+  "schema": "ghaudit/org-export@1",
+  "exported_at": "2026-06-08T12:00:00Z",
+  "organization": {
+    "login": "acme-labs",
+    "two_factor_requirement_enabled": false,
+    "default_repository_permission": "write",
+    "members_can_create_public_repositories": true
+  },
+  "members": [
+    { "login": "alice", "role": "admin", "two_factor_enabled": true },
+    { "login": "bob", "role": "admin", "two_factor_enabled": false },
+    { "login": "carol", "role": "admin", "two_factor_enabled": true },
+    { "login": "dave", "role": "member", "two_factor_enabled": true },
+    { "login": "erin", "role": "member", "two_factor_enabled": true }
+  ],
+  "repositories": [
+    {
+      "full_name": "acme-labs/payments-api",
+      "default_branch": "main",
+      "visibility": "private",
+      "archived": false,
+      "secret_scanning_enabled": false,
+      "branch_protection": {
+        "enabled": true,
+        "required_approving_review_count": 0,
+        "allow_force_pushes": true,
+        "enforce_admins": false
+      },
+      "secrets": [
+        { "name": "DEPLOY_KEY", "updated_at": "2023-01-15T00:00:00Z" },
+        { "name": "STRIPE_TOKEN", "updated_at": "2026-05-01T00:00:00Z" }
+      ]
+    },
+    {
+      "full_name": "acme-labs/website",
+      "default_branch": "main",
+      "visibility": "public",
+      "archived": false,
+      "branch_protection": { "enabled": false },
+      "contains_internal_marker": true
+    },
+    {
+      "full_name": "acme-labs/internal-tools",
+      "default_branch": "main",
+      "visibility": "private",
+      "archived": false,
+      "secret_scanning_enabled": true,
+      "branch_protection": {
+        "enabled": true,
+        "required_approving_review_count": 2,
+        "allow_force_pushes": false,
+        "enforce_admins": true
+      },
+      "secrets": [
+        { "name": "NPM_TOKEN", "updated_at": "2026-04-20T00:00:00Z", "value": "npm_xxxxLEAKEDxxxx" }
+      ]
+    },
+    {
+      "full_name": "acme-labs/legacy-archive",
+      "default_branch": "master",
+      "visibility": "private",
+      "archived": true,
+      "branch_protection": { "enabled": false }
+    }
+  ]
+}
