@@ -1,0 +1,10 @@
+{
+  "name": "@cognis/ghaudit",
+  "version": "0.2.0",
+  "description": "JavaScript port of ghaudit (Cognis Neural Suite)",
+  "bin": {
+    "ghaudit": "index.js"
+  },
+  "license": "LicenseRef-COCL-1.0",
+  "type": "module"
+}
