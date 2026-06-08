@@ -36,9 +36,11 @@ Audit a GitHub org's security posture (branch rules, 2FA, secrets) from an expor
 <a name="features"></a>
 ## Features
 
-- ✅ Todo
-- ✅ Fixme
-- ✅ Xxx
+- ✅ Load Export
+- ✅ Audit Org
+- ✅ Render Json
+- ✅ Render Table
+- ✅ Render Html
 - ✅ Runs on Linux/macOS/Windows · Docker · devcontainer
 - ✅ Ports in Python, JavaScript, Go, and Rust (`ports/`)
 
