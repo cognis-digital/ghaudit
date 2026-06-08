@@ -1,26 +1,11 @@
-"""GHAUDIT - audit a GitHub org's security posture from an export.
-
-Defensive / forensics tooling: analyzes an organization export (members,
-repositories, branch protection, secrets metadata) you already own and
-reports hardening gaps. No network access, no attack capability.
-"""
-from .core import (
-    Finding,
-    AuditReport,
-    audit_org,
-    load_export,
-    SEVERITY_ORDER,
-)
-
-TOOL_NAME = "ghaudit"
-TOOL_VERSION = "1.0.0"
-
-__all__ = [
-    "Finding",
-    "AuditReport",
-    "audit_org",
-    "load_export",
-    "SEVERITY_ORDER",
-    "TOOL_NAME",
-    "TOOL_VERSION",
-]
+"""ghaudit — part of the Cognis Neural Suite."""
+try:  # re-export the tool's public API + identity from core
+    from ghaudit.core import *  # noqa: F401,F403
+except Exception:  # pragma: no cover
+    pass
+try:
+    from ghaudit.core import TOOL_NAME, TOOL_VERSION
+except Exception:  # pragma: no cover
+    TOOL_NAME = "ghaudit"
+    TOOL_VERSION = "0.1.0"
+__version__ = TOOL_VERSION
