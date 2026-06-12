@@ -16,7 +16,7 @@
 </div>
 
 ```bash
-pip install cognis-ghaudit
+pip install "git+https://github.com/cognis-digital/ghaudit.git"
 ghaudit scan .            # → prioritized findings in seconds
 ```
 
@@ -50,7 +50,7 @@ Audit a GitHub org's security posture (branch rules, 2FA, secrets) from an expor
 ## Quick start
 
 ```bash
-pip install cognis-ghaudit
+pip install "git+https://github.com/cognis-digital/ghaudit.git"
 ghaudit --version
 ghaudit scan .                       # scan current project
 ghaudit scan . --format json         # machine-readable
