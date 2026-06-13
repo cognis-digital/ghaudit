@@ -20,6 +20,31 @@ pip install cognis-ghaudit
 ghaudit scan .            # → prioritized findings in seconds
 ```
 
+
+## Usage — step by step
+
+1. Install (Python 3.9+):
+   ```bash
+   pip install ghaudit
+   ```
+2. Audit a GitHub org's security posture from an export JSON file (branch
+   rules, 2FA, secrets — defensive analysis only):
+   ```bash
+   ghaudit audit org-export.json
+   ```
+3. Write a self-contained HTML or JSON report instead of the console table:
+   ```bash
+   ghaudit audit org-export.json --format html -o ghaudit-report.html
+   ghaudit audit org-export.json --format json -o ghaudit-report.json
+   ```
+4. Read the output: the table summarizes findings by severity. For automation,
+   parse the `--format json` report. The process exits `1` when any
+   CRITICAL/HIGH (failing) findings exist, `0` otherwise.
+5. Gate CI on the org posture:
+   ```bash
+   ghaudit audit org-export.json --format json -o report.json
+   ```
+
 ## Contents
 
 - [Why ghaudit?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
