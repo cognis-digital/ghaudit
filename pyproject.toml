@@ -34,3 +34,6 @@ ghaudit = "ghaudit.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["ghaudit"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
