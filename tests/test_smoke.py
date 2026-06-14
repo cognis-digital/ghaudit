@@ -128,6 +128,109 @@ class TestLoadErrors(unittest.TestCase):
         finally:
             os.unlink(path)
 
+    def test_empty_file_raises_value_error(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".json",
+                                         delete=False) as tf:
+            tf.write("   ")
+            path = tf.name
+        try:
+            with self.assertRaises(ValueError, msg="empty file should raise ValueError"):
+                load_export(path)
+        finally:
+            os.unlink(path)
+
+    def test_invalid_json_raises_value_error(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".json",
+                                         delete=False) as tf:
+            tf.write("{bad json")
+            path = tf.name
+        try:
+            with self.assertRaises(ValueError, msg="malformed JSON should raise ValueError"):
+                load_export(path)
+        finally:
+            os.unlink(path)
+
+    def test_json_array_raises_value_error(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".json",
+                                         delete=False) as tf:
+            json.dump([1, 2, 3], tf)
+            path = tf.name
+        try:
+            with self.assertRaises(ValueError, msg="JSON array root should raise ValueError"):
+                load_export(path)
+        finally:
+            os.unlink(path)
+
+
+class TestAuditEdgeCases(unittest.TestCase):
+    """Hardening tests: malformed / adversarial export data must not crash."""
+
+    def test_none_member_entries_ignored(self):
+        """A None entry in the members list must be skipped gracefully."""
+        export = {
+            "organization": {"login": "test-org", "two_factor_requirement_enabled": True,
+                             "default_repository_permission": "read"},
+            "members": [None, {"login": "alice", "role": "admin", "two_factor_enabled": True}],
+            "repositories": [],
+        }
+        report = audit_org(export, now=FIXED_NOW)
+        # Should complete without exception; findings may or may not exist.
+        self.assertIsNotNone(report)
+
+    def test_non_dict_repo_entries_ignored(self):
+        """Non-dict entries in repositories must be skipped without crashing."""
+        export = {
+            "organization": {"login": "test-org", "two_factor_requirement_enabled": True},
+            "members": [],
+            "repositories": ["not-a-repo", 42, None],
+        }
+        report = audit_org(export, now=FIXED_NOW)
+        self.assertIsNotNone(report)
+
+    def test_branch_protection_non_dict_treated_as_absent(self):
+        """branch_protection set to a non-dict value should trigger REPO_NO_BRANCH_PROTECTION."""
+        export = {
+            "organization": {"login": "test-org"},
+            "members": [],
+            "repositories": [{
+                "full_name": "test-org/repo",
+                "default_branch": "main",
+                "archived": False,
+                "branch_protection": "enabled",  # wrong type
+            }],
+        }
+        report = audit_org(export, now=FIXED_NOW)
+        ids = {f.check_id for f in report.findings}
+        self.assertIn("REPO_NO_BRANCH_PROTECTION", ids)
+
+    def test_none_secret_entries_ignored(self):
+        """A None entry in a repo's secrets list must be skipped without crashing."""
+        export = {
+            "organization": {"login": "test-org"},
+            "members": [],
+            "repositories": [{
+                "full_name": "test-org/repo",
+                "default_branch": "main",
+                "archived": False,
+                "secrets": [None, {"name": "KEY", "updated_at": "2023-01-01T00:00:00Z"}],
+            }],
+        }
+        report = audit_org(export, now=FIXED_NOW)
+        # The valid stale secret should still be detected.
+        ids = {f.check_id for f in report.findings}
+        self.assertIn("SECRET_STALE", ids)
+
+    def test_empty_export_no_crash(self):
+        """Minimal export with only the required 'organization' key produces a report."""
+        export = {"organization": {}}
+        report = audit_org(export, now=FIXED_NOW)
+        self.assertEqual(report.org, "unknown")
+        self.assertEqual(report.stats["members"], 0)
+        self.assertEqual(report.stats["repositories"], 0)
+
 
 class TestCli(unittest.TestCase):
     def test_version(self):
@@ -142,6 +245,30 @@ class TestCli(unittest.TestCase):
     def test_missing_file_exit_2(self):
         rc = main(["audit", "does-not-exist.json"])
         self.assertEqual(rc, 2)
+
+    def test_empty_json_file_exit_2(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".json",
+                                         delete=False) as tf:
+            tf.write("")
+            path = tf.name
+        try:
+            rc = main(["audit", path])
+            self.assertEqual(rc, 2, "empty file should exit 2")
+        finally:
+            os.unlink(path)
+
+    def test_malformed_json_exit_2(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".json",
+                                         delete=False) as tf:
+            tf.write("{this is not json")
+            path = tf.name
+        try:
+            rc = main(["audit", path])
+            self.assertEqual(rc, 2, "invalid JSON should exit 2")
+        finally:
+            os.unlink(path)
 
 
 if __name__ == "__main__":

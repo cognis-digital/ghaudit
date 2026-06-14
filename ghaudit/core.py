@@ -78,8 +78,17 @@ class AuditReport:
 
 def load_export(path: str) -> dict:
     """Load and minimally validate a GitHub org export JSON file."""
-    with open(path, "r", encoding="utf-8") as fh:
-        data = json.load(fh)
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            text = fh.read()
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"export file is not valid UTF-8: {exc}") from exc
+    if not text.strip():
+        raise ValueError("export file is empty")
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"export file is not valid JSON: {exc}") from exc
     if not isinstance(data, dict):
         raise ValueError("export root must be a JSON object")
     if "organization" not in data:
@@ -109,6 +118,8 @@ def _now() -> datetime:
 # --------------------------------------------------------------------------
 
 def _check_org_2fa(org: dict, out: list[Finding]) -> None:
+    if not isinstance(org, dict):
+        return
     if not org.get("two_factor_requirement_enabled", False):
         out.append(Finding(
             check_id="ORG_2FA_DISABLED",
@@ -123,6 +134,8 @@ def _check_org_2fa(org: dict, out: list[Finding]) -> None:
 
 
 def _check_default_perm(org: dict, out: list[Finding]) -> None:
+    if not isinstance(org, dict):
+        return
     perm = (org.get("default_repository_permission") or "read").lower()
     if perm in ("write", "admin"):
         out.append(Finding(
@@ -138,6 +151,8 @@ def _check_default_perm(org: dict, out: list[Finding]) -> None:
 
 
 def _check_member_can_create_public(org: dict, out: list[Finding]) -> None:
+    if not isinstance(org, dict):
+        return
     if org.get("members_can_create_public_repositories", False):
         out.append(Finding(
             check_id="ORG_MEMBERS_CREATE_PUBLIC",
@@ -152,8 +167,9 @@ def _check_member_can_create_public(org: dict, out: list[Finding]) -> None:
 
 
 def _check_admins(members: list[dict], out: list[Finding]) -> None:
-    admins = [m for m in members if (m.get("role") or "").lower() == "admin"]
-    total = len(members)
+    valid_members = [m for m in members if isinstance(m, dict)]
+    admins = [m for m in valid_members if (m.get("role") or "").lower() == "admin"]
+    total = len(valid_members)
     if total and len(admins) / total > 0.25 and len(admins) > 2:
         out.append(Finding(
             check_id="ORG_ADMIN_SPRAWL",
@@ -165,7 +181,7 @@ def _check_admins(members: list[dict], out: list[Finding]) -> None:
             remediation="Reduce org owners to the minimum (typically 2-3) and "
                         "use teams for delegated access.",
         ))
-    for m in members:
+    for m in valid_members:
         if (m.get("role") or "").lower() == "admin" and not m.get("two_factor_enabled", True):
             out.append(Finding(
                 check_id="ADMIN_NO_2FA",
@@ -179,12 +195,15 @@ def _check_admins(members: list[dict], out: list[Finding]) -> None:
 
 
 def _check_repo(repo: dict, out: list[Finding]) -> None:
+    if not isinstance(repo, dict):
+        return
     name = repo.get("full_name") or repo.get("name") or "?"
     archived = repo.get("archived", False)
 
     # Branch protection on the default branch.
     if not archived:
-        bp = repo.get("branch_protection") or {}
+        raw_bp = repo.get("branch_protection")
+        bp = raw_bp if isinstance(raw_bp, dict) else {}
         default_branch = repo.get("default_branch", "main")
         if not bp.get("enabled", False):
             out.append(Finding(
@@ -258,8 +277,12 @@ def _check_repo(repo: dict, out: list[Finding]) -> None:
 
 
 def _check_secrets(repo: dict, out: list[Finding], now: datetime) -> None:
+    if not isinstance(repo, dict):
+        return
     name = repo.get("full_name") or repo.get("name") or "?"
     for sec in repo.get("secrets") or []:
+        if not isinstance(sec, dict):
+            continue
         sname = sec.get("name", "?")
         updated = _parse_date(sec.get("updated_at"))
         if updated is not None:
@@ -303,21 +326,24 @@ def audit_org(export: dict, now: Optional[datetime] = None) -> AuditReport:
     _check_admins(members, findings)
 
     for repo in repos:
+        if not isinstance(repo, dict):
+            continue
         _check_repo(repo, findings)
         _check_secrets(repo, findings, now)
 
     findings.sort(key=lambda f: (SEVERITY_ORDER.get(f.severity, 99), f.check_id, f.resource))
 
+    dict_repos = [r for r in repos if isinstance(r, dict)]
     stats = {
-        "members": len(members),
-        "repositories": len(repos),
-        "public_repositories": sum(1 for r in repos if r.get("visibility") == "public"),
-        "archived_repositories": sum(1 for r in repos if r.get("archived")),
+        "members": len([m for m in members if isinstance(m, dict)]),
+        "repositories": len(dict_repos),
+        "public_repositories": sum(1 for r in dict_repos if r.get("visibility") == "public"),
+        "archived_repositories": sum(1 for r in dict_repos if r.get("archived")),
         "total_findings": len(findings),
     }
 
     return AuditReport(
-        org=org.get("login", "unknown"),
+        org=org.get("login", "unknown") if isinstance(org, dict) else "unknown",
         generated_at=now.replace(microsecond=0).isoformat(),
         findings=findings,
         stats=stats,
