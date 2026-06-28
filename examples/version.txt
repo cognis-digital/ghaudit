@@ -1,0 +1,3 @@
+$ ghaudit-emit --version
+
+ghaudit 0.1.0

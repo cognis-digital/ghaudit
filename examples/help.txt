@@ -1,0 +1,14 @@
+$ ghaudit-emit --help
+
+usage: ghaudit [-h] [--version] {audit} ...
+
+Audit a GitHub org's security posture from an export (branch rules, 2FA,
+secrets). Defensive analysis only.
+
+positional arguments:
+  {audit}
+    audit     audit an org export file
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
